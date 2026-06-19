@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCT Practice Examination</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Lato:wght@300;400;700&display=swap');
+
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161c26;
+    --card:      #1c2535;
+    --border:    #263045;
+    --navy:      #0f2a4a;
+    --accent:    #1e6fb5;
+    --accent2:   #2491d4;
+    --red:       #c0392b;
+    --green:     #1e7e4a;
+    --green-lit: #27ae60;
+    --red-lit:   #e74c3c;
+    --text:      #d0d9e8;
+    --muted:     #7a8fa8;
+    --label:     #5b8fbf;
+    --white:     #f0f4fa;
+  }
+
+  /* ── LIGHT THEME ── */
+  :root.light {
+    --bg:        #eef2f7;
+    --surface:   #dde5f0;
+    --card:      #f4f7fb;
+    --border:    #b8c8de;
+    --navy:      #cddaed;
+    --accent:    #1e6fb5;
+    --accent2:   #1a7abf;
+    --red:       #c0392b;
+    --green:     #1e7e4a;
+    --green-lit: #1a7a40;
+    --red-lit:   #c0392b;
+    --text:      #1a2535;
+    --muted:     #7da6d1;
+    --label:     #4e8ac5;
+    --white:     #0d1a2e;
+  }
+
+  /* ── THEME TOGGLE BUTTON ── */
+  #theme-toggle {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, border-color .2s;
+    flex-shrink: 0;
+    padding: 0;
+    line-height: 1;
+  }
+  #theme-toggle:hover {
+    background: var(--navy);
+    border-color: var(--accent);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+    transition: background .25s, color .25s;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0a1a2e 0%, #0f2a4a 60%, #12355e 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 32px 24px 24px;
+    text-align: center;
+    position: relative;
+    transition: background .25s;
+  }
+  :root.light header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #1e5599 60%, #1a6abf 100%);
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--accent), var(--accent2));
+  }
+  .header-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--label);
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+  header h1 span { color: var(--accent2); }
+  .header-sub {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* ── CONTROLS BAR ── */
+  .controls {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .controls label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: 'Lato', sans-serif;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent2);
+    color: var(--white);
+  }
+  .spacer { flex: 1; }
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .progress-bar-outer {
+    width: 140px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width .3s;
+    width: 0%;
+  }
+  #progress-text { min-width: 60px; text-align: right; }
+
+  /* ── SCORE SUMMARY ── */
+  #score-summary {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 24px auto;
+    max-width: 860px;
+    padding: 28px 32px;
+  }
+  #score-summary h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .score-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .score-card .domain-name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--label);
+    margin-bottom: 6px;
+  }
+  .score-card .domain-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .score-card .domain-pct {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .total-score {
+    background: linear-gradient(135deg, var(--navy), #0a2040);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  :root.light .total-score {
+    background: linear-gradient(135deg, #cddaed, #b8ccdf);
+  }
+  .total-score .label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--label);
+  }
+  .total-score .big-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .total-score .pass-fail {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 4px;
+  }
+  .pass { background: var(--green); color: #fff; }
+  .fail { background: var(--red); color: #fff; }
+  #reset-btn {
+    background: var(--accent);
+    border: none;
+    color: var(--white);
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: background .15s;
+  }
+  #reset-btn:hover { background: var(--accent2); }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    max-width: 860px;
+    margin: 32px auto 0;
+    padding: 0 24px;
+  }
+  .section-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 0 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  .q-count-badge {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* ── QUESTION CARDS ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 12px 24px 48px;
+  }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 10px 0;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .question-card.answered-correct {
+    border-color: var(--green);
+  }
+  .question-card.answered-wrong {
+    border-color: var(--red-lit);
+  }
+  .question-card.hidden { display: none; }
+
+  .question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px 12px;
+  }
+  .q-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--label);
+    min-width: 30px;
+    padding-top: 2px;
+  }
+  .q-text {
+    font-size: 15px;
+    color: var(--white);
+    line-height: 1.5;
+    flex: 1;
+  }
+  .q-status {
+    font-size: 18px;
+    min-width: 22px;
+    text-align: center;
+  }
+
+  .options {
+    padding: 0 18px 14px 62px;
+    display: grid;
+    gap: 6px;
+  }
+  .option-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 4px;
+    text-align: left;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .12s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: var(--navy);
+    border-color: var(--accent);
+    color: var(--white);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--label);
+    min-width: 18px;
+  }
+  .option-btn.correct {
+    background: #0e2e1c;
+    border-color: var(--green-lit);
+    color: #a8f0c0;
+  }
+  .option-btn.correct .option-letter { color: var(--green-lit); }
+  .option-btn.wrong {
+    background: #2c0f0f;
+    border-color: var(--red-lit);
+    color: #f0a8a8;
+  }
+  .option-btn.wrong .option-letter { color: var(--red-lit); }
+  .option-btn.reveal-correct {
+    background: #0e2e1c;
+    border-color: var(--green-lit);
+    color: #a8f0c0;
+    opacity: 0.7;
+  }
+  .option-btn.reveal-correct .option-letter { color: var(--green-lit); }
+
+  .feedback {
+    margin: 0 18px 12px 62px;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: none;
+  }
+  .feedback.correct {
+    background: #0a2016;
+    border-left: 3px solid var(--green-lit);
+    color: #7de0a0;
+    display: block;
+  }
+  .feedback.wrong {
+    background: #200a0a;
+    border-left: 3px solid var(--red-lit);
+    color: #e08080;
+    display: block;
+  }
+
+  /* light-mode overrides for hardcoded dark answer colors */
+  :root.light .option-btn.correct {
+    background: #d4f0e0;
+    color: #0d4a24;
+  }
+  :root.light .option-btn.wrong {
+    background: #f5d5d5;
+    color: #6b1010;
+  }
+  :root.light .option-btn.reveal-correct {
+    background: #d4f0e0;
+    color: #0d4a24;
+  }
+  :root.light .feedback.correct {
+    background: #c8eeda;
+    color: #0d4a24;
+  }
+  :root.light .feedback.wrong {
+    background: #f5d0d0;
+    color: #6b1010;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .options { padding-left: 18px; }
+    header h1 { font-size: 26px; }
+    .controls { gap: 8px; }
+    .score-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Kettering National Seminars</div>
+  <h1>Certified Cardiographic Technician<br><span>Practice Examination</span></h1>
+  <div class="header-sub">176 Questions · 5 Domains · Self-Scoring</div>
+</header>
+
+<div class="controls">
+  <label>Filter:</label>
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="Anatomy">Anatomy</button>
+  <button class="filter-btn" data-filter="ECG/Holter">ECG / Holter</button>
+  <button class="filter-btn" data-filter="Electrophysiology">Electrophysiology</button>
+  <button class="filter-btn" data-filter="Stress Testing">Stress Testing</button>
+  <button class="filter-btn" data-filter="Cardiac Medications">Medications</button>
+  <div class="spacer"></div>
+  <button id="theme-toggle" title="Toggle light/dark mode" onclick="toggleTheme()">🌙</button>
+  <span id="last-saved-label" style="display:none;font-size:12px;color:var(--muted);"></span>
+  <span id="save-status" style="font-size:12px;opacity:0;transition:opacity .4s;min-width:120px;text-align:right;"></span>
+  <div class="progress-wrap">
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+    <span id="progress-text">0 / 176</span>
+  </div>
+  <button id="score-btn" style="background:var(--accent);border:none;color:#fff;padding:7px 16px;border-radius:4px;font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;" onclick="showScore()">Score</button>
+</div>
+
+<div id="score-summary">
+  <h2>Examination Results</h2>
+  <div class="total-score">
+    <div>
+      <div class="label">Total Score</div>
+      <div class="big-score" id="total-score-display">—</div>
+    </div>
+    <div id="pass-fail-badge"></div>
+  </div>
+  <div class="score-grid" id="domain-scores"></div>
+  <button id="reset-btn" onclick="resetExam()">Reset Exam</button>
+</div>
+
+<main id="main-content"></main>
+
+<script>
+const QUESTIONS = [
+  // ── ANATOMY (1-42) ──
+  {n:1,  domain:"Anatomy", q:"What is the serous membrane that makes up the outer surface of the heart?", opts:["endocardium","epicardium","pericardium","myocardium"], ans:"B"},
+  {n:2,  domain:"Anatomy", q:"Which of the following receives blood from the great veins?", opts:["left ventricle","right atria","right ventricle","left atria"], ans:"B"},
+  {n:3,  domain:"Anatomy", q:"The valve between the right atria and right ventricle is called the", opts:["bicuspid","pulmonic","aortic","tricuspid"], ans:"D"},
+  {n:4,  domain:"Anatomy", q:"Which of the following coronary arteries give rise to the circumflex branch?", opts:["left coronary artery","posterior interventricular artery","right coronary artery","coronary sulcus"], ans:"A"},
+  {n:5,  domain:"Anatomy", q:"Which of the following is the largest and thickest heart chamber?", opts:["right atria","right ventricle","left atria","left ventricle"], ans:"D"},
+  {n:6,  domain:"Anatomy", q:"The cardiac muscle tissue of the heart is called the", opts:["epicardium","pericardium","endocardium","myocardium"], ans:"D"},
+  {n:7,  domain:"Anatomy", q:"Which of the following occurs when the coronary circulation becomes blocked and the cardiac muscle cells die from lack of oxygen?", opts:["ischemia","infarction","injury","reduction"], ans:"B"},
+  {n:8,  domain:"Anatomy", q:"How many pulmonary veins does the left atria receive blood from?", opts:["1","2","3","4"], ans:"D"},
+  {n:9,  domain:"Anatomy", q:"Which of the following is NOT a half-mooned shaped valve?", opts:["mitral","aortic","pulmonic","semilunar"], ans:"A"},
+  {n:10, domain:"Anatomy", q:"What is the force exerted against the vascular walls by the blood called when the push exerted by cardiac contraction is resisted by the elasticity of the vessel walls?", opts:["heart rate","stroke volume","blood pressure","cardiac output"], ans:"C"},
+  {n:11, domain:"Anatomy", q:"What is the normal oxygen saturation of the left ventricle?", opts:["25%","50%","75%","95%"], ans:"D"},
+  {n:12, domain:"Anatomy", q:"Which of the following are thin wall blood vessels that permit the diffusion of gases, nutrients and wastes between the plasma and interstitial fluids?", opts:["arterioles","veins","venules","capillaries"], ans:"D"},
+  {n:13, domain:"Anatomy", q:"During ventricular contraction, the prevention of backflow or regurgitation of blood back into the atrium is the function of the", opts:["chordae tendonae","semilunar valves","pulmonic valve","left ventricle"], ans:"A"},
+  {n:14, domain:"Anatomy", q:"What is the formula for aortic pulse pressure?", opts:["systolic + diastolic + diastolic ÷ 3","diastolic + pulse pressure ÷ 3","pulse pressure systolic - pulse pressure diastolic","stroke volume x heart rate x 10"], ans:"C"},
+  {n:15, domain:"Anatomy", q:"Which of the following receives blood from the capillaries?", opts:["veins","arteries","venules","arterioles"], ans:"C"},
+  {n:16, domain:"Anatomy", q:"What is the normal pressure in the right atria?", opts:["120 mmHg","20 mmHg","12 mmHg","6 mmHg"], ans:"D"},
+  {n:17, domain:"Anatomy", q:"What is the normal pulmonary artery pressure?", opts:["120/80 mmHg","25/8 mmHg","8 mmHg","2-3 mmHg"], ans:"B"},
+  {n:18, domain:"Anatomy", q:"Which of the following is the amount of blood ejected by the left ventricle each minute?", opts:["mean arterial pressure","stroke volume","pulse pressure","cardiac output"], ans:"D"},
+  {n:19, domain:"Anatomy", q:"The amount of force a contracting ventricle must produce to open the semilunar valve is called", opts:["pre-load","afterload","compliance","contractility"], ans:"B"},
+  {n:20, domain:"Anatomy", q:"Positive inotropic agents often", opts:["block calcium entry","stimulate potassium entry","block potassium entry","stimulate calcium entry"], ans:"A"},
+  {n:21, domain:"Anatomy", q:"Which of the following is NOT a source of peripheral resistance?", opts:["volume","turbulence","vascular tone","viscosity"], ans:"A"},
+  {n:22, domain:"Anatomy", q:"The cardiac pacemaker or the natural pacemaker is called the", opts:["sinoatrial node","bundle of his","atrioventricular node","Purkinje fibers"], ans:"A"},
+  {n:23, domain:"Anatomy", q:"Which of the following will respond to changes in oxygen levels, blood pH and cerebrospinal fluid pH?", opts:["chemoreceptors","carotid sinuses","baroreceptors","central receptors"], ans:"A"},
+  {n:24, domain:"Anatomy", q:"Which of the following is in the floor of the right atrium near the opening of the coronary sinus?", opts:["sinoatrial node","bundle of his","atrioventricular node","Purkinje fibers"], ans:"C"},
+  {n:25, domain:"Anatomy", q:"The resistance to blood flow primarily caused by friction within the vessel walls is called", opts:["systemic resistance","peripheral resistance","vascular resistance","pulmonary resistance"], ans:"B"},
+  {n:26, domain:"Anatomy", q:"The amount of force produced during a contraction, independent of preload is called", opts:["afterload","stretch","contractility","compliance"], ans:"C"},
+  {n:27, domain:"Anatomy", q:"Which of the following will generate an action potential at a rate of 40-60 per minute?", opts:["sinoatrial node","bundle of his","atrioventricular node","Purkinje fibers"], ans:"C"},
+  {n:28, domain:"Anatomy", q:"Which of the following divides the right atrium from the left atrium?", opts:["interatrial septum","interventricular septum","inferior vena cava","superior vena cava"], ans:"A"},
+  {n:29, domain:"Anatomy", q:"What is the normal conduction pathway of the heart?", opts:["SA node, AV node, right and left bundle branches, bundle of his, Purkinje fibers","SA node, bundle of his, AV node, right and left bundle branches, Purkinje fibers","SA node, right and left bundle branches, bundle of his, AV node, Purkinje fibers","SA node, AV node, bundle of his, right and left bundle branches, Purkinje fibers"], ans:"D"},
+  {n:30, domain:"Anatomy", q:"How does blood normally flow?", opts:["arterioles, arteries, venules, capillaries, veins","arteries, arterioles, capillaries, venules, veins","veins, venules, capillaries, arteries, arterioles","arteries, veins, arterioles, venules, capillaries"], ans:"B"},
+  {n:31, domain:"Anatomy", q:"Which of the following does NOT directly affect the heart?", opts:["epinephrine","growth hormones","norepinephrine","thyroid hormones"], ans:"B"},
+  {n:32, domain:"Anatomy", q:"Which of the following does not carry oxygenated blood?", opts:["pulmonary vein","pulmonary artery","left ventricle","left atria"], ans:"B"},
+  {n:33, domain:"Anatomy", q:"What occluded artery would most likely cause a lateral wall infarction?", opts:["circumflex","anterior descending","right coronary artery","posterior descending artery"], ans:"A"},
+  {n:34, domain:"Anatomy", q:"The sympathetic and parasympathetic division of the autonomic nervous system provide intervention to the heart via the", opts:["coronary arteries","cardiac plexus","circumflex branch","coronary sinus"], ans:"B"},
+  {n:35, domain:"Anatomy", q:"Where does the normal conduction system terminate in the heart?", opts:["bundle of his","Purkinje fibers","AV node","right and left bundle branches"], ans:"B"},
+  {n:36, domain:"Anatomy", q:"How does blood normally flow through the heart?", opts:["left atria, left ventricle, lungs, right atria, right ventricle","right ventricle, lungs, right atria, left atria, left ventricle","right atria, right ventricle, lungs, left atria, left ventricle","left atria, lungs left ventricle, right ventricle, right atria"], ans:"C"},
+  {n:37, domain:"Anatomy", q:"Which of the following is toward the body's longitudinal axis?", opts:["medial","distal","lateral","proximal"], ans:"A"},
+  {n:38, domain:"Anatomy", q:"What is the function of the ventricles?", opts:["I and II only","III and IV only","II, III and IV only","I, II and IV only"], ans:"D"},
+  {n:39, domain:"Anatomy", q:"The function of this structure is to collect blood returning to the heart and deliver it to the attached ventricle.", opts:["superior vena cava","inferior vena cava","atrial chambers","interatrial septum"], ans:"C"},
+  {n:40, domain:"Anatomy", q:"Which of the following terms best describes at, near, or relatively close to the body surface?", opts:["distal","superficial","proximal","parietal"], ans:"B"},
+  {n:41, domain:"Anatomy", q:"The cardiac centers of the ___ contain the autonomic headquarters for cardiac control.", opts:["medulla oblongata","pons","cerebellum","cerebrum"], ans:"A"},
+  {n:42, domain:"Anatomy", q:"Which of the following delivers blood to the right atrium from the head, neck, upper limbs and chest?", opts:["left ventricle","interatrial septum","inferior vena cava","superior vena cava"], ans:"D"},
+
+  // ── ECG/HOLTER (43-90, 137-165) ──
+  {n:43,  domain:"ECG/Holter", q:"How would you recognize that a lead may be reversed on an ECG tracing?", opts:["lead II QRS is negative","AVR QRS is negative","lead I QRS is positive","AVF QRS is positive"], ans:"A"},
+  {n:44,  domain:"ECG/Holter", q:"What ECG finding is most consistent with hyperkalemia?", opts:["spike T waves","a new pathologic Q wave","flattening of the T wave","diphasic P waves"], ans:"A"},
+  {n:45,  domain:"ECG/Holter", q:"Which of the following would cause a depressed ST segment and inverted T wave?", opts:["myocardial infarction","myocardial ischemia","muscle injury","hyperkalemia"], ans:"B"},
+  {n:46,  domain:"ECG/Holter", q:"Which view of the heart is provided by leads V3 and V4?", opts:["posterior wall","lateral wall","inferior wall","anterior wall"], ans:"D"},
+  {n:47,  domain:"ECG/Holter", q:"The P wave represents which of the following?", opts:["repolarization of the atria","depolarization of the atria","depolarization of the ventricles","repolarization of the ventricles"], ans:"B"},
+  {n:48,  domain:"ECG/Holter", q:"The ST segment is measured from the", opts:["end of the R wave to the beginning of the T wave","beginning of the S wave to the end of the T wave","beginning of the R wave to the end of the T wave","end of the S wave to the beginning of the T wave"], ans:"D"},
+  {n:49,  domain:"ECG/Holter", q:"Which of the following arrhythmias are considered life threatening?", opts:["sinus bradycardia and sinus tachycardia","junctional rhythm and atrial tachycardia","ventricular tachycardia and ventricular fibrillation","atrial fibrillation and atrial flutter"], ans:"C"},
+  {n:50,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Regular narrow complex tachycardia ~150 bpm, abrupt onset appearance]", opts:["paroxysmal atrial tachycardia","sinus tachycardia","paroxysmal junctional tachycardia","paroxysmal ventricular tachycardia"], ans:"A"},
+  {n:51,  domain:"ECG/Holter", q:"Which of the following would NOT cause sinus tachycardia?", opts:["fever","anxiety","oxygen","drug reaction"], ans:"C"},
+  {n:52,  domain:"ECG/Holter", q:"A short or flat T wave occurs when there is", opts:["hypokalemia","hyperkalemia","Hypochloremia","Hyperchloremia"], ans:"A"},
+  {n:53,  domain:"ECG/Holter", q:"In a sinus rhythm, the electrical impulse originates from", opts:["bundle of his","Purkinje fibers","AV node","SA node"], ans:"D"},
+  {n:54,  domain:"ECG/Holter", q:"The following tracing was taken from a patient with an irregular pulse. What is the correct interpretation of the rhythm? [Irregularly irregular, no discernible P waves, fine fibrillatory baseline]", opts:["atrial fibrillation","atrial flutter","sinus arrhythmia","normal sinus rhythm"], ans:"A"},
+  {n:55,  domain:"ECG/Holter", q:"The proper placement of the V6 chest lead is at the", opts:["4th intercostal space, right side of the sternum","5th intercostal space, left midclavicular line","5th intercostal space, left midaxillary line","4th intercostal space, left side of the sternum"], ans:"C"},
+  {n:56,  domain:"ECG/Holter", q:"Flutter is a heart rate between", opts:["100-150 beats/minute","150-250 beats/minute","250-350 beats/minute","350-450 beats/minute"], ans:"C"},
+  {n:57,  domain:"ECG/Holter", q:"What is the heart rate for the ECG pictured? [~3 large boxes between R waves = 100 bpm]", opts:["50","75","100","120"], ans:"A"},
+  {n:58,  domain:"ECG/Holter", q:"A three channel ECG machine:", opts:["records two leads at the same time","records one lead at one time","is an older style machine","records three leads at the same time"], ans:"D"},
+  {n:59,  domain:"ECG/Holter", q:"The following tracing was taken from a patient with an irregular pulse. What is the correct interpretation of the rhythm? [Irregular P-P intervals, varying P morphology]", opts:["nodal rhythm","normal sinus rhythm","wandering pacemaker","sinus arrest"], ans:"C"},
+  {n:60,  domain:"ECG/Holter", q:"The following tracing was taken from a patient. What is the correct interpretation of the rhythm? [Wide complex beat interrupting regular rhythm, compensatory pause]", opts:["premature ventricular contraction (PVC)","premature atrial contraction (PAC)","paroxysmal atrial tachycardia (PAT)","premature junctional contraction (PJC)"], ans:"B"},
+  {n:61,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Regular rhythm, consistent PR, dropped QRS periodically]", opts:["sinus block","bundle branch block","1st degree AV block","3rd degree AV block"], ans:"A"},
+  {n:62,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Narrow QRS without preceding P, regular, rate ~40-60]", opts:["premature nodal contraction","ventricular escape beat","junctional escape beat","atrial escape beat"], ans:"C"},
+  {n:63,  domain:"ECG/Holter", q:"Which of the following arrhythmias creates a series of identical P waves that give a 'saw tooth' appearance?", opts:["atrial flutter","atrial fibrillation","ventricular fibrillation","ventricular flutter"], ans:"A"},
+  {n:64,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Wide complex regular tachycardia, rate ~150-200, AV dissociation]", opts:["paroxysmal atrial tachycardia","paroxysmal junctional tachycardia","ventricular tachycardia","sinus tachycardia"], ans:"C"},
+  {n:65,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Paced spikes followed by wide QRS, regular]", opts:["WPW Syndrome","ventricular pacing","atrial pacing","3rd degree AV block"], ans:"B"},
+  {n:66,  domain:"ECG/Holter", q:"___ is when the P-R interval becomes longer and longer until it skips a beat (no QRS).", opts:["1st degree AV block","3rd degree AV block","Mobitz II AV block","Mobitz I AV block"], ans:"D"},
+  {n:67,  domain:"ECG/Holter", q:"The ECG chest leads (V1 and V2) show a double R wave (R, R'). This will diagnose", opts:["sinus block","3rd degree AV block","2nd degree AV block","right bundle branch block"], ans:"D"},
+  {n:68,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Short PR interval, delta wave, wide QRS]", opts:["right bundle branch block","Wolff-Parkinson-White Syndrome","left bundle branch block","AV dissociation"], ans:"B"},
+  {n:69,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Regular P waves, PR prolonged >0.20s, consistent 1:1 conduction]", opts:["3rd degree AV block","2nd degree AV block","1st degree AV block","sinus block"], ans:"A"},
+  {n:70,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient (V5 and V6 shown). What is the correct interpretation?", opts:["LBBB","RBBB","sinus block","AV block"], ans:"A"},
+  {n:71,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Progressive PR lengthening then dropped beat]", opts:["Wenckebach","Mobitz II","1st degree AV block","3rd degree AV block"], ans:"A"},
+  {n:72,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["atrial pacing","ventricular pacing","AV dissociation","3rd degree AV block"], ans:"A"},
+  {n:73,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["1st degree AV block","2nd degree AV block","bundle branch block","3rd degree AV block"], ans:"C"},
+  {n:74,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["1st degree AV block","Mobitz I","Mobitz II","3rd degree AV block"], ans:"C"},
+  {n:75,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["AAI","VVI","VVT","DDD"], ans:"D"},
+  {n:76,  domain:"ECG/Holter", q:"A positive lead I and a negative lead AVF would indicate", opts:["right axis deviation","extreme axis deviation","normal axis","left axis deviation"], ans:"D"},
+  {n:77,  domain:"ECG/Holter", q:"Ventricular hypertrophy is diagnosed by R wave changes in leads", opts:["V1 and V5","V2 and V4","V3 and V6","V1 and V2"], ans:"A"},
+  {n:78,  domain:"ECG/Holter", q:"A diphasic P wave is where the P wave appears", opts:["positive","both positive and negative","negative","spiked and elevated"], ans:"B"},
+  {n:79,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation? [Peaked/tall P waves in inferior leads]", opts:["acute infarction","atrial hypertrophy","axis deviation","hypokalemia"], ans:"B"},
+  {n:80,  domain:"ECG/Holter", q:"If the direction of the axis is up and to the right, it is called", opts:["normal axis","left axis deviation","right axis deviation","extreme right axis deviation"], ans:"D"},
+  {n:81,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation? [Rapid, repetitive, undulating baseline fluctuations]", opts:["electrical interference","somatic tremor","wandering baseline","atrial hypertrophy"], ans:"A"},
+  {n:82,  domain:"ECG/Holter", q:"Atrial hypertrophy is best seen in", opts:["lead V1","lead II","lead V5","AVF"], ans:"A"},
+  {n:83,  domain:"ECG/Holter", q:"Which of the following is diagnosed when significant Q waves are seen on the ECG?", opts:["hyperkalemia","injury","ischemia","infarction"], ans:"D"},
+  {n:84,  domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm?", opts:["PVC","atrial escape beat","junctional escape beat","ventricular escape beat"], ans:"D"},
+  {n:85,  domain:"ECG/Holter", q:"Which of the following ECG findings would suggest Wolf-Parkinson White (WPW)?", opts:["U wave","delta wave","biphasic P wave","alpha wave"], ans:"B"},
+  {n:86,  domain:"ECG/Holter", q:"Which of the following heart rates would be interpreted as atrial flutter?", opts:["100","150","200","250"], ans:"D"},
+  {n:87,  domain:"ECG/Holter", q:"Which of the following is the FIRST upward deflection on the ECG paper?", opts:["P wave","Q wave","R wave","S wave"], ans:"A"},
+  {n:88,  domain:"ECG/Holter", q:"When would you NOT use epinephrine?", opts:["pulseless electrical activity","to treat patients with symptomatic bradycardia","supraventricular tachycardia","asystole"], ans:"C"},
+  {n:89,  domain:"ECG/Holter", q:"The following tracing was taken from a patient. What is the correct interpretation of the rhythm? [Chaotic undulating baseline, no identifiable QRS]", opts:["atrial fibrillation","atrial flutter","ventricular flutter","ventricular fibrillation"], ans:"B"},
+  {n:90,  domain:"ECG/Holter", q:"A negative lead I and a negative lead AVF is considered", opts:["normal axis","left axis deviation","extreme right axis deviation","right axis deviation"], ans:"C"},
+
+  // ── ELECTROPHYSIOLOGY (91-102) ──
+  {n:91,  domain:"Electrophysiology", q:"During this phase sodium moves rapidly into the cell and potassium begins to exit, converting the electrical forces within the cell to a positive charge. This phase is called", opts:["phase 0","phase 1","phase 2","phase 3"], ans:"A"},
+  {n:92,  domain:"Electrophysiology", q:"A condition in which ions of opposite charges are separated by a semi permeable membrane such as a cell membrane is called", opts:["repolarization","depolarization","polarization","action potential"], ans:"C"},
+  {n:93,  domain:"Electrophysiology", q:"Movement of the transmembrane potential away from + mV values and toward the resting potential is called", opts:["action potential","depolarization","polarization","repolarization"], ans:"D"},
+  {n:94,  domain:"Electrophysiology", q:"The difference measured about -90 mV across the cell membrane is called the", opts:["transmembrane potential","refractory period","action potential","repolarization"], ans:"A"},
+  {n:95,  domain:"Electrophysiology", q:"A conducted change in the transmembrane potential of excitable cells, initiated by a change in the membrane permeability to sodium ions is called the", opts:["action potential","cardiac cycle","refractory period","conduction phase"], ans:"A"},
+  {n:96,  domain:"Electrophysiology", q:"Which phase of the action potential curve represents the resting phase?", opts:["phase 1","phase 2","phase 3","phase 4"], ans:"D"},
+  {n:97,  domain:"Electrophysiology", q:"A change in the transmembrane potential that moves it from a negative value towards 0 mV is called", opts:["depolarization","polarization","repolarization","action potential"], ans:"A"},
+  {n:98,  domain:"Electrophysiology", q:"A brief rapid change toward the repolarization process, during which the membrane potential returns to 0 mV is called phase", opts:["1","2","3","4"], ans:"A"},
+  {n:99,  domain:"Electrophysiology", q:"A plateau, or stabilization period, caused by the slow influx of sodium and the slow exit of potassium is called phase", opts:["0","1","2","3"], ans:"C"},
+  {n:100, domain:"Electrophysiology", q:"This phase is depicted by an upstroke of the action potential curve and is called phase", opts:["0","1","2","3"], ans:"A"},
+  {n:101, domain:"Electrophysiology", q:"The period between the initiation of an action potential and the restoration of the normal resting potential is", opts:["transmembrane potential","refractory period","action potential","polarization"], ans:"B"},
+  {n:102, domain:"Electrophysiology", q:"The phase that represents a sudden acceleration of repolarization as potassium leaves rapidly, causing the inside of the cell to move toward a more negative state is called", opts:["phase 0","phase 1","phase 2","phase 3"], ans:"D"},
+
+  // ── STRESS TESTING (103-135) ──
+  {n:103, domain:"Stress Testing", q:"Which of the following is a contraindication for exercise stress testing?", opts:["over 60 years of age","smoking history of more than 40 pack/years","severe obesity","PaO2 of less than 40 mmHg on room air"], ans:"D"},
+  {n:104, domain:"Stress Testing", q:"Which of the following is used to tag the patient's blood cells in the Muga Stress Test?", opts:["thallium-201","technetium 99","dobutamine","dipyridamole"], ans:"B"},
+  {n:105, domain:"Stress Testing", q:"The exercise protocol that uses 10 exercise periods of 3 minutes duration separated by rest periods of 3 minutes, is called", opts:["Bruce protocol","Modified Bruce protocol","Naughton protocol","Kattus protocol"], ans:"C"},
+  {n:106, domain:"Stress Testing", q:"Which formula is used to calculate the maximum heart rate of a patient prior to a stress test?", opts:["220 - age (years)","target heart rate x 75% - age (years)","100 + age (years)","220 - age (years) x 75%"], ans:"A"},
+  {n:107, domain:"Stress Testing", q:"Which of the following is an alternative to thallium studies for the detection of coronary artery disease?", opts:["dipyridamole","Muga scans","dobutamine","Xenon scan"], ans:"B"},
+  {n:108, domain:"Stress Testing", q:"What would cause a patient's blood pressure to fall at the peak heart rate during a stress test?", opts:["decreased vascular resistance","increased heart rate","increased ejection fraction","decreased cardiac output"], ans:"D"},
+  {n:109, domain:"Stress Testing", q:"The formula: belt length x cycles ÷ minute (RPM) is used to determine the", opts:["grade of the treadmill","speed of a treadmill","resistance of the treadmill","workload of the treadmill"], ans:"B"},
+  {n:110, domain:"Stress Testing", q:"Which of the following would be a normal response to stress testing?", opts:["systolic pressure less than 100 mmHg","diastolic pressure greater than 100 mmHg","S-T segment depression","heart rate greater than 120"], ans:"D"},
+  {n:111, domain:"Stress Testing", q:"When is thallium-201 administered?", opts:["resting heart rate","target heart rate","peak heart rate","75% of maximum"], ans:"C"},
+  {n:112, domain:"Stress Testing", q:"The exercise protocol that begins with a 3 minute stage of walking at 1.7 mph at 10% grade is called", opts:["Naughton","Bruce","Kattus","Modified Bruce"], ans:"D"},
+  {n:113, domain:"Stress Testing", q:"If you were only able to use one lead to monitor the ECG of a patient during a Kattus exercise stress test procedure, you should use", opts:["modified V2","AVR","modified V5","AVF"], ans:"C"},
+  {n:114, domain:"Stress Testing", q:"Which of the following would NOT increase as the workload increases?", opts:["respiratory rate","deadspace","oxygen consumption","carbon dioxide production"], ans:"B"},
+  {n:115, domain:"Stress Testing", q:"What exercise stress test protocol would you use on someone who had a noncomplicated controlled MI about 15 weeks ago?", opts:["Naughton","Bruce","Modified Bruce","Kattus"], ans:"C"},
+  {n:116, domain:"Stress Testing", q:"Which medication can be safely used during a stress test?", opts:["digitalis","dopamine","dobutamine","digoxin"], ans:"C"},
+  {n:117, domain:"Stress Testing", q:"Vasoconstriction during stress testing will result in", opts:["increased vascular resistance","decreased vascular resistance","increased myocardial contractility","decreased left ventricular afterload"], ans:"A"},
+  {n:118, domain:"Stress Testing", q:"During an exercise evaluation, a patient develops PVC at a frequency of 12 per minute and significant ST segment depression. Which of the following conditions would be most likely to cause these changes?", opts:["ischemic heart disease","deconditioning","acute hypertension","this is a normal finding during exercise"], ans:"A"},
+  {n:119, domain:"Stress Testing", q:"Where would you measure blood pressure non-invasively during a stress exercise test?", opts:["femoral artery","radial artery","brachial artery","carotid artery"], ans:"C"},
+  {n:120, domain:"Stress Testing", q:"Which of the following is the normal value for 1 MET unit?", opts:["1.5 mL/min/kg","2.5 mL/min/kg","3.5 mL/min/kg","4.5 mL/min/kg"], ans:"C"},
+  {n:121, domain:"Stress Testing", q:"Which of the following will NOT vary the workload during an incremental stress test when using a treadmill?", opts:["belt speed","percent grade","resistance adjustment","incline angle"], ans:"C"},
+  {n:122, domain:"Stress Testing", q:"Which of the following is a potent coronary vasodilator used in exercise stress testing?", opts:["dobutrex","sestamibi","cardiolyte","dipyridamole"], ans:"D"},
+  {n:123, domain:"Stress Testing", q:"Which of the following would be an indication to stop the stress testing procedure?", opts:["premature ventricular contraction","heart rate of 200 beats/minute","systolic blood pressure of 200 mmHg","ST depression greater than 1 mm for 0.8 second"], ans:"D"},
+  {n:124, domain:"Stress Testing", q:"A 50 year old patient is being prepared for an exercise stress test. He has a resting heart rate of 84 bpm, BP 128/86 mmHg, respiratory rate of 12 bpm, and VT of 485 mL. What is the patient's maximum heart rate?", opts:["110","150","170","190"], ans:"C"},
+  {n:125, domain:"Stress Testing", q:"Which of the following drugs can be used with patients unable to exercise sufficiently to reach an adequate heart rate?", opts:["dipyridamole","dobutamine","dopamine","thallium"], ans:"A"},
+  {n:126, domain:"Stress Testing", q:"Which of the following would you get more dependable workloads from?", opts:["dipyridamole","thallium-201","treadmill","cycle ergometer"], ans:"D"},
+  {n:127, domain:"Stress Testing", q:"After 3 minutes into a Bruce exercise stress test, the patient's systolic pressure remains unchanged and the diastolic pressure has fallen rapidly. The technician should", opts:["continue the test","terminate the test","stop, allow the BP to normalize, restart the test","notify the physician"], ans:"B"},
+  {n:128, domain:"Stress Testing", q:"Which of the following is NOT a contraindication to stress testing?", opts:["dyspnea","unstable angina","uncontrolled hypertension","dissecting aneurysms"], ans:"A"},
+  {n:129, domain:"Stress Testing", q:"Which of the following occurs when a patient reaches the anaerobic threshold?", opts:["pH increase and lactic acid increases","pH increases and lactic acid decreases","pH decreases and lactic acid increases","pH decreases and lactic acid decreases"], ans:"C"},
+  {n:130, domain:"Stress Testing", q:"What kind of lead system is preferred during stress testing?", opts:["MCL 1 and MCL 5","Lead II only","Lead III only","MCL 2 and MCL 3"], ans:"A"},
+  {n:131, domain:"Stress Testing", q:"Which of the following is used to calculate cardiac output?", opts:["stroke volume x heart rate","stroke volume ÷ heart rate","heart rate x mean arterial pressure","mean arterial pressure ÷ heart rate"], ans:"A"},
+  {n:132, domain:"Stress Testing", q:"Which of the following is used to calculate double product?", opts:["heart rate x systolic blood pressure ÷ 100","heart rate ÷ mean arterial pressure ÷ 100","heart rate x diastolic blood pressure ÷ 100","mean arterial pressure ÷ heart rate ÷ 100"], ans:"A"},
+  {n:133, domain:"Stress Testing", q:"What does MCL stand for?", opts:["modified chest lead","monitoring chest lead","mandatory chest lead","millivolt chest lead"], ans:"A"},
+  {n:134, domain:"Stress Testing", q:"Which of the following is an abnormal response to exercise testing?", opts:["decreased R wave amplitude","an increase to the P wave amplitude","a rightward axis shift","an ST segment depression of 1 mm"], ans:"D"},
+  {n:135, domain:"Stress Testing", q:"When utilizing the Naughton stress testing protocol, the workload is increased every", opts:["2 minutes","3 minutes","4 minutes","5 minutes"], ans:"A"},
+
+  // ── ECG/HOLTER continued (136-165) ──
+  {n:136, domain:"ECG/Holter", q:"How long does the redistribution period take once thallium-201 is administered?", opts:["1-2 hours","2-4 hours","3-5 hours","4-6 hours"], ans:"B"},
+  {n:137, domain:"ECG/Holter", q:"The QRS complex should be less than ___ small squares wide.", opts:["1","2","3","4"], ans:"C"},
+  {n:138, domain:"ECG/Holter", q:"The T wave represents", opts:["depolarization of the atria","repolarization of the atria","repolarization of the ventricles","depolarization of the ventricles"], ans:"C"},
+  {n:139, domain:"ECG/Holter", q:"What is the heart rate for the ECG pictured? [~4 large boxes between R waves = 75 bpm]", opts:["50","75","100","120"], ans:"C"},
+  {n:140, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Narrow complex, regular, rate ~150, abrupt onset]", opts:["paroxysmal atrial tachycardia","paroxysmal junctional tachycardia","sinus tachycardia","paroxysmal ventricular tachycardia"], ans:"B"},
+  {n:141, domain:"ECG/Holter", q:"When measuring the PR interval it is measured from the", opts:["beginning of the P wave to the end of the Q wave","beginning of the P wave to the beginning of the T wave","beginning of the P wave to the end of the R wave","beginning of the P wave to the beginning of the Q wave"], ans:"D"},
+  {n:142, domain:"ECG/Holter", q:"The following tracing was taken from a patient. What is the correct interpretation of the rhythm? [Chaotic, no organized P waves, irregular QRS]", opts:["atrial fibrillation","atrial flutter","ventricular flutter","ventricular fibrillation"], ans:"D"},
+  {n:143, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Wide bizarre QRS interrupting regular rhythm]", opts:["PVC","PJC","PAT","PAC"], ans:"A"},
+  {n:144, domain:"ECG/Holter", q:"The following tracing was taken from a patient. What is the correct interpretation of the rhythm? [Regular saw-tooth P waves ~300 bpm, 2:1 conduction]", opts:["atrial flutter","atrial fibrillation","ventricular flutter","ventricular fibrillation"], ans:"C"},
+  {n:145, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation of the rhythm? [Single wide complex beat, compensatory pause, underlying sinus rhythm]", opts:["junctional escape beat","atrial escape beat","ventricular escape beat","PVC"], ans:"B"},
+  {n:146, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["Mobitz I","Mobitz II","1st degree AV block","3rd degree AV block"], ans:"C"},
+  {n:147, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["2nd degree AV block","1st degree AV block","AV dissociation","Wolff-Parkinson-White Syndrome"], ans:"C"},
+  {n:148, domain:"ECG/Holter", q:"The following tracing was obtained from a patient (V1 and V2). What is the correct interpretation?", opts:["LBBB","RBBB","AV block","sinus block"], ans:"B"},
+  {n:149, domain:"ECG/Holter", q:"The following Lead II tracing was obtained from a patient. What is the correct interpretation?", opts:["somatic tremor","ventricular hypertrophy","wandering baseline","electrical interference"], ans:"C"},
+  {n:150, domain:"ECG/Holter", q:"The following Lead I tracing was obtained from a patient. What is the correct interpretation?", opts:["normal axis","left axis deviation","right axis deviation","atrial hypertrophy"], ans:"C"},
+  {n:151, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["electrical interference","somatic tremor","wandering baseline","ventricular hypertrophy"], ans:"B"},
+  {n:152, domain:"ECG/Holter", q:"Which of the following is diagnosed when inverted T waves are present on the ECG?", opts:["injury","ischemia","infarction","hyperkalemia"], ans:"B"},
+  {n:153, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["left atrial hypertrophy","ventricular hypertrophy","right atrial hypertrophy","sinus arrhythmia"], ans:"C"},
+  {n:154, domain:"ECG/Holter", q:"The following tracing was obtained from a patient. What is the correct interpretation?", opts:["sinus arrhythmia","ventricular hypertrophy","right atrial hypertrophy","left atrial hypertrophy"], ans:"D"},
+  {n:155, domain:"ECG/Holter", q:"What is the approximate heart rate? [Holter tracing V1/V5]", opts:["50 bpm","60 bpm","70 bpm","80 bpm"], ans:"B"},
+  {n:156, domain:"ECG/Holter", q:"This EKG is most consistent with", opts:["atrial fibrillation","atrial flutter","second degree AV block","normal sinus rhythm"], ans:"D"},
+  {n:157, domain:"ECG/Holter", q:"The PR interval is measured to be", opts:["0.12 seconds","0.16 seconds","0.20 seconds","0.24 seconds"], ans:"C"},
+  {n:158, domain:"ECG/Holter", q:"The QRS duration is", opts:["normal","decreased","increased","unable to determine"], ans:"A"},
+  {n:159, domain:"ECG/Holter", q:"The axis is", opts:["right axis","left axis","normal axis","unable to determine"], ans:"D"},
+  {n:160, domain:"ECG/Holter", q:"What is the approximate heart rate? [12-lead EKG]", opts:["50 bpm","75 bpm","95 bpm","110 bpm"], ans:"B"},
+  {n:161, domain:"ECG/Holter", q:"This EKG is consistent with what rhythm?", opts:["sinus bradycardia","sinus arrhythmia","atrial fibrillation","first degree heart block"], ans:"D"},
+  {n:162, domain:"ECG/Holter", q:"The PR interval is", opts:["normal","increased","decreased","unable to determine"], ans:"B"},
+  {n:163, domain:"ECG/Holter", q:"The QRS duration is", opts:["0.24 seconds","0.20 seconds","0.16 seconds","0.12 seconds"], ans:"C"},
+  {n:164, domain:"ECG/Holter", q:"The axis on the EKG is", opts:["right axis","left axis","normal axis","extreme axis"], ans:"A"},
+  {n:165, domain:"ECG/Holter", q:"This EKG is consistent with", opts:["anterior wall infarction","posterior wall infarction","lateral wall infarction","inferior wall infarction"], ans:"D"},
+
+  // ── CARDIAC MEDICATIONS (166-176) ──
+  {n:166, domain:"Cardiac Medications", q:"Which of the following group of drugs lowers left and right ventricular filling pressure (preload)?", opts:["beta blockers","diuretics","nitrates","calcium channel blockers"], ans:"C"},
+  {n:167, domain:"Cardiac Medications", q:"Which of the following is indicated for the treatment of paroxysmal supraventricular tachycardia (PSVT) which does not require cardioversion?", opts:["lidocaine","inderal","verapamil","isuprel"], ans:"C"},
+  {n:168, domain:"Cardiac Medications", q:"The primary beneficial effect of epinephrine is for the treatment of", opts:["first degree heart block","atria dysrhythmias","bradycardia","cardiac arrest"], ans:"D"},
+  {n:169, domain:"Cardiac Medications", q:"Propranolol (Inderal) main action is to", opts:["control cardiac action through the parasympathetic nervous system","inhibit cardiac stimulation by the sympathetic nervous system","be used as an oral vasodilator for hypertension","cause a venodilator response"], ans:"B"},
+  {n:170, domain:"Cardiac Medications", q:"The first antiarrhythmic drug used for the treatment of ventricular tachycardia and fibrillation is", opts:["epinephrine","oxygen","verapamil","lidocaine"], ans:"D"},
+  {n:171, domain:"Cardiac Medications", q:"A negative inotropic affect would", opts:["decrease the strength of contraction","increase the heart rate","decrease the heart rate","increase the strength of contraction"], ans:"A"},
+  {n:172, domain:"Cardiac Medications", q:"Which anti-arrhythmic drug is given with an initial dose of 1mg/kg?", opts:["epinephrine","sodium bicarbonate","lidocaine","verapamil"], ans:"C"},
+  {n:173, domain:"Cardiac Medications", q:"Which of the following drugs is the most common agent for arrhythmias refractory to lidocaine?", opts:["verapamil","adenosine","bretylium","procainamide"], ans:"C"},
+  {n:174, domain:"Cardiac Medications", q:"These drugs can have increased effects when used with calcium channel blockers?", opts:["alpha adrenergic blockers","nitrates","direct arteriolar vasodilators","ACE inhibitors"], ans:"B"},
+  {n:175, domain:"Cardiac Medications", q:"Which drug is NOT an alpha adrenergic blocker?", opts:["terazosin","prazosin","doxazosin","latensin"], ans:"D"},
+  {n:176, domain:"Cardiac Medications", q:"Which of the following selectively block alpha adrenergic receptors to reduce pulmonary vascular resistance?", opts:["doxazosin","diazoxide","bretylium","benazepril"], ans:"A"},
+];
+
+const ANSWER_KEY = {};
+QUESTIONS.forEach(q => { ANSWER_KEY[q.n] = q.ans; });
+
+const DOMAINS = ["Anatomy","ECG/Holter","Electrophysiology","Stress Testing","Cardiac Medications"];
+const LETTERS = ["A","B","C","D"];
+const STORAGE_KEY = 'cct_exam_progress';
+
+let answered = {};
+let currentFilter = "all";
+let saveTimeout = null;
+
+// ── PERSISTENCE ──────────────────────────────────────────────
+function saveProgress() {
+  try {
+    const payload = {
+      answered,
+      filter: currentFilter,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    showSaveStatus('saved');
+  } catch (e) {
+    showSaveStatus('error');
+  }
+}
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const payload = JSON.parse(raw);
+    answered = payload.answered || {};
+    currentFilter = payload.filter || 'all';
+    const savedAt = payload.savedAt ? new Date(payload.savedAt) : null;
+    if (savedAt) {
+      const ts = savedAt.toLocaleDateString('en-US', { month:'short', day:'numeric' })
+               + ' at ' + savedAt.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+      document.getElementById('last-saved-label').textContent = `Last saved: ${ts}`;
+      document.getElementById('last-saved-label').style.display = 'inline';
+    }
+    return Object.keys(answered).length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+function clearProgress() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+}
+
+function showSaveStatus(state) {
+  const el = document.getElementById('save-status');
+  if (state === 'saved') {
+    el.textContent = '✓ Saved';
+    el.style.color = 'var(--green-lit)';
+  } else if (state === 'saving') {
+    el.textContent = '● Saving…';
+    el.style.color = 'var(--muted)';
+  } else {
+    el.textContent = '⚠ Save failed';
+    el.style.color = 'var(--red-lit)';
+  }
+  el.style.opacity = '1';
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimeout);
+  showSaveStatus('saving');
+  saveTimeout = setTimeout(saveProgress, 600);
+}
+
+// ── QUIZ BUILD ───────────────────────────────────────────────
+function letterToIndex(l) { return LETTERS.indexOf(l); }
+
+function buildQuiz() {
+  const main = document.getElementById('main-content');
+  main.innerHTML = '';
+
+  let currentDomain = null;
+  QUESTIONS.forEach(q => {
+    if (q.domain !== currentDomain) {
+      currentDomain = q.domain;
+      const qRange = QUESTIONS.filter(x => x.domain === currentDomain);
+      const start = qRange[0].n;
+      const end = qRange[qRange.length-1].n;
+      const secDiv = document.createElement('div');
+      secDiv.className = 'section-header';
+      secDiv.dataset.domain = q.domain;
+      secDiv.innerHTML = `<h2>${q.domain} <span class="q-count-badge">Q${start}–${end}</span></h2>`;
+      main.appendChild(secDiv);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q-card-${q.n}`;
+    card.dataset.domain = q.domain;
+
+    const optsHtml = q.opts.map((opt, i) => {
+      const letter = LETTERS[i];
+      return `<button class="option-btn" data-q="${q.n}" data-letter="${letter}" onclick="handleAnswer(${q.n}, '${letter}')">
+        <span class="option-letter">${letter}.</span><span>${opt}</span>
+      </button>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="question-header">
+        <div class="q-num">${q.n}.</div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-status" id="q-status-${q.n}"></div>
+      </div>
+      <div class="options" id="opts-${q.n}">${optsHtml}</div>
+      <div class="feedback" id="fb-${q.n}"></div>
+    `;
+
+    main.appendChild(card);
+
+    if (answered[q.n]) restoreAnswer(q.n);
+  });
+
+  applyFilter(currentFilter);
+  updateProgress();
+}
+
+function handleAnswer(qNum, letter) {
+  if (answered[qNum]) return;
+  answered[qNum] = letter;
+  restoreAnswer(qNum);
+  updateProgress();
+  scheduleSave();
+}
+
+function restoreAnswer(qNum) {
+  const letter = answered[qNum];
+  const correct = ANSWER_KEY[qNum];
+  const isCorrect = letter === correct;
+  const card = document.getElementById(`q-card-${qNum}`);
+  const fb = document.getElementById(`fb-${qNum}`);
+  const status = document.getElementById(`q-status-${qNum}`);
+  if (!card) return;
+
+  const btns = document.querySelectorAll(`#opts-${qNum} .option-btn`);
+  btns.forEach(btn => {
+    btn.disabled = true;
+    const btnLetter = btn.dataset.letter;
+    if (btnLetter === letter && isCorrect) btn.classList.add('correct');
+    else if (btnLetter === letter && !isCorrect) btn.classList.add('wrong');
+    else if (btnLetter === correct && !isCorrect) btn.classList.add('reveal-correct');
+  });
+
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+  status.textContent = isCorrect ? '✓' : '✗';
+
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  const q = QUESTIONS.find(x => x.n === qNum);
+  if (isCorrect) {
+    fb.textContent = `Correct! The answer is ${correct}. ${q.opts[letterToIndex(correct)]}`;
+  } else {
+    fb.textContent = `Incorrect. The correct answer is ${correct}: ${q.opts[letterToIndex(correct)]}`;
+  }
+}
+
+function applyFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === filter);
+  });
+  document.querySelectorAll('.question-card').forEach(card => {
+    if (filter === 'all' || card.dataset.domain === filter) card.classList.remove('hidden');
+    else card.classList.add('hidden');
+  });
+  document.querySelectorAll('.section-header').forEach(h => {
+    if (filter === 'all' || h.dataset.domain === filter) h.classList.remove('hidden');
+    else h.classList.add('hidden');
+  });
+}
+
+function updateProgress() {
+  const total = QUESTIONS.length;
+  const done = Object.keys(answered).length;
+  const pct = (done / total) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${done} / ${total}`;
+}
+
+function showScore() {
+  const summary = document.getElementById('score-summary');
+  summary.style.display = 'block';
+  summary.scrollIntoView({ behavior: 'smooth' });
+
+  let totalCorrect = 0;
+  const domainStats = {};
+  DOMAINS.forEach(d => domainStats[d] = { correct: 0, total: 0 });
+
+  QUESTIONS.forEach(q => {
+    domainStats[q.domain].total++;
+    if (answered[q.n] === ANSWER_KEY[q.n]) {
+      totalCorrect++;
+      domainStats[q.domain].correct++;
+    }
+  });
+
+  const pct = Math.round((totalCorrect / QUESTIONS.length) * 100);
+  document.getElementById('total-score-display').textContent = `${totalCorrect} / ${QUESTIONS.length} (${pct}%)`;
+
+  const passFail = document.getElementById('pass-fail-badge');
+  passFail.className = 'pass-fail ' + (pct >= 75 ? 'pass' : 'fail');
+  passFail.textContent = pct >= 75 ? 'PASSING' : 'NEEDS WORK';
+
+  const grid = document.getElementById('domain-scores');
+  grid.innerHTML = DOMAINS.map(d => {
+    const s = domainStats[d];
+    const dpct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+    return `<div class="score-card">
+      <div class="domain-name">${d}</div>
+      <div class="domain-score">${s.correct}/${s.total}</div>
+      <div class="domain-pct">${dpct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function resetExam() {
+  if (!confirm('Reset all answers and start over? This cannot be undone.')) return;
+  answered = {};
+  clearProgress();
+  document.getElementById('score-summary').style.display = 'none';
+  document.getElementById('last-saved-label').style.display = 'none';
+  document.getElementById('save-status').style.opacity = '0';
+  buildQuiz();
+}
+
+// ── THEME ────────────────────────────────────────────────────
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('theme-toggle').textContent = '☀️';
+  } else {
+    document.documentElement.classList.remove('light');
+    document.getElementById('theme-toggle').textContent = '🌙';
+  }
+}
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.contains('light');
+  const next = isLight ? 'dark' : 'light';
+  applyTheme(next);
+  try { localStorage.setItem('cct_theme', next); } catch(e) {}
+}
+
+// Load saved theme preference
+(function() {
+  try {
+    const saved = localStorage.getItem('cct_theme');
+    applyTheme(saved === 'light' ? 'light' : 'dark');
+  } catch(e) { applyTheme('dark'); }
+})();
+
+// ── INIT ─────────────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyFilter(btn.dataset.filter);
+    scheduleSave();
+  });
+});
+
+// Auto-save on page unload (tab close, navigate away)
+window.addEventListener('beforeunload', () => {
+  if (Object.keys(answered).length > 0) saveProgress();
+});
+
+const hadProgress = loadProgress();
+buildQuiz();
+
+if (hadProgress) {
+  // Brief toast so user knows their session was restored
+  const el = document.getElementById('save-status');
+  el.textContent = `↩ Progress restored (${Object.keys(answered).length} answers)`;
+  el.style.color = 'var(--accent2)';
+  el.style.opacity = '1';
+  saveTimeout = setTimeout(() => { el.style.opacity = '0'; }, 4000);
+}
+</script>
+</body>
+</html>
